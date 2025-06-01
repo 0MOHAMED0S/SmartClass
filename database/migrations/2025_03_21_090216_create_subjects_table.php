@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('path',255);
             $table->foreignId('room_id')->references('id')->on('rooms')->cascadeOnDelete();
             $table->timestamps();
         });

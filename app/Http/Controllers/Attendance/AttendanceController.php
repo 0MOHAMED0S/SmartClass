@@ -16,40 +16,45 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AttendanceController extends Controller
 {
-public function scanindex(Request $request,$roomId, $subjectId, $attendId)
-{
-    $attend=$attendId;
-    $subject = Subject::findOrFail($subjectId);
-    $room = Room::findOrFail($roomId);
-    $attendance=Attendance::findOrFail($attendId);
-    return view('main.attend.scan', compact('room', 'subject', 'attend','attendance'));
+public function scanindex(Request $request, $roomId, $subjectId, $attendId)
+    {
+        $attend = $attendId;
+        $subject = Subject::findOrFail($subjectId);
+        $room = Room::findOrFail($roomId);
+        $attendance = Attendance::findOrFail($attendId);
 
-}
-    public function scan(Request $request)
-{
-    $validated = $request->validate([
-        'qr_code' => 'required|string',
-        'room_id' => 'required|integer',
-        'subject_id' => 'required|integer',
-        'attend_id' => 'required|integer',
-    ]);
-
-    $student = Student::where('qr_code', $validated['qr_code'])->first();
-    if (!$student) {
-        return response()->json(['message' => 'Student not found.'], 404);
+        return view('main.attend.scan', compact('room', 'subject', 'attend', 'attendance'));
     }
 
-    AttendanceRecord::updateOrCreate(
-        [
-            'student_id' => $student->id,
-            'room_id' => $validated['room_id'],
-            'attendance_id' => $validated['attend_id'],
-        ],
-        ['status' => 1] // Mark as present
-    );
+    public function scan(Request $request)
+    {
+        $validated = $request->validate([
+            'qr_code' => 'required|string',
+            'room_id' => 'required|integer',
+            'subject_id' => 'required|integer',
+            'attend_id' => 'required|integer',
+        ]);
 
-    return response()->json(['message' => 'Attendance marked successfully.']);
+        // Fix: Use correct field to look up student
+        $student = Student::where('code', $validated['qr_code'])->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Student not found.'], 404);
+        }
+
+        AttendanceRecord::updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'room_id' => $validated['room_id'],
+                'attendance_id' => $validated['attend_id'],
+            ],
+            ['status' => 1]
+        );
+
+        return response()->json(['message' => 'Attendance marked successfully.']);
+    }
 }
+
 
 
 public function attendStudents(Request $request, $roomId, $subjectId, $attendId)

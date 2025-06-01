@@ -9,23 +9,29 @@
 @endsection
 
 @section('outside')
+<!-- CSRF Token -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!-- QR Code Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     function onScanSuccess(decodedText, decodedResult) {
-        // Show scanned result
         $('#scan-result')
-            .removeClass('d-none alert-info')
+            .removeClass('d-none alert-info alert-danger')
             .addClass('alert-success')
             .text(`Scanned: ${decodedText}`);
 
-        // Send scanned data to server
         $.ajax({
             url: "{{ route('subjects.attend.scan') }}",
             method: 'POST',
             data: {
-                _token: '{{ csrf_token() }}',
                 qr_code: decodedText,
                 room_id: {{ $room->id }},
                 subject_id: {{ $subject->id }},

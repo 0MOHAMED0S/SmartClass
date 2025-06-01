@@ -45,7 +45,7 @@
                 <ul class="list-group list-group-flush">
                     @foreach ($room->subjects as $subject)
                         <li class="list-group-item d-flex align-items-center gap-3 px-0" style="height: 40px;">
-                            <img src="{{ $subject->path }}" alt="Math 101" class="rounded-circle"
+                            <img src="{{ $room->path }}" alt="Math 101" class="rounded-circle"
                                 style="width: 36px; height: 36px; object-fit: cover;">
                             <a href="{{ route('rooms.subjects.show', ['room' => $room->id, 'subject' => $subject->id]) }}"
                                 class="text-decoration-none fw-semibold text-dark flex-grow-1">{{ $subject->name }}</a>
