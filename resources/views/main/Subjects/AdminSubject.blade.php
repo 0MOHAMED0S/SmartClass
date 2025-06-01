@@ -90,7 +90,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('attendance.students', $room->id) }}",
+                url: "{{ route('attendance.students', ['room'=>$room->id,'subject'=>$subject->id]) }}",
                 data: {
                     subject_id: "{{ $subject->id }}"
                 }

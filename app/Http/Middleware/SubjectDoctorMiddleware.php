@@ -35,7 +35,7 @@ class SubjectDoctorMiddleware
             ->where('subject_id', $subjectId)
             ->exists();
 
-         if (!$isDoctor) {
+        if (!$isDoctor) {
         return redirect()->back()->with('error', 'Access denied. You are not the doctor for this subject.');
     }
 

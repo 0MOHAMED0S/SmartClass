@@ -78,7 +78,7 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceCo
 Route::post('/rooms/{room}/subjects/{subject}/attendance', [AttendanceController::class, 'store'])->middleware('doctor.subject')->name('attendance.store');
 
 // Get students for attendance in a room
-Route::get('/rooms/{room}/attendance/students', [AttendanceController::class, 'getStudents'])->middleware('doctor.subject')->name('attendance.students');
+Route::get('/rooms/{room}/attendance/students/{subject}', [AttendanceController::class, 'getStudents'])->middleware('doctor.subject')->name('attendance.students');
 
 
 // ==========================
