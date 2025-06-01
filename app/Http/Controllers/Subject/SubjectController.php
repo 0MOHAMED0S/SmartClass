@@ -39,27 +39,30 @@ public function index($Rid, $Sid)
         return redirect()->back()->with('error', 'You are not a member of this room.');
     }
 
-    // If user is a member, fetch their student record and attendance
-    if ($roomUser->role === 'member') {
-        $student = $room->students->where('id', $user->id)->first(); // assuming `students` relation returns User models
+if ($roomUser->role === 'member') {
+    $studentQrCode = null; // Always define it
+
+    $student = $room->students->where('id', $user->id)->first();
+
+    if ($student) {
+        $student->load(['attendanceRecords' => function ($query) use ($room) {
+            $query->whereIn('attendance_id', $room->attendanceCards->pluck('id'));
+        }]);
+    }
+
+    if ($roomUser && $roomUser->code) {
+        $student = Student::where('room_id', $Rid)
+            ->where('code', $roomUser->code)
+            ->first();
 
         if ($student) {
-            $student->load(['attendanceRecords' => function ($query) use ($room) {
-                $query->whereIn('attendance_id', $room->attendanceCards->pluck('id'));
-            }]);
+            $studentQrCode = QrCode::size(200)->generate($student->code);
         }
-
-        if ($roomUser && $roomUser->code) {
-            $student = Student::where('room_id', $Rid)
-                ->where('code', $roomUser->code)
-                ->first();
-            if ($student) {
-                $studentQrCode = QrCode::size(200)->generate($student->code);
-            }
-        }
-
-        return view('main.Subjects.UserSubject', compact('room', 'subject', 'student', 'studentQrCode'));
     }
+
+    return view('main.Subjects.UserSubject', compact('room', 'subject', 'student', 'studentQrCode'));
+}
+
 
     // Admin or doctor view
     if ($roomUser->role === 'admin' || $roomUser->role === 'doctor') {
@@ -132,13 +135,4 @@ public function doctor($roomId, $subjectId, Request $request)
             return redirect()->back()->with('error', 'Subject Error .');
         }
     }
-
-    // public function show($id)
-    // {
-    //     $room = Room::with('students', 'roomUsers')->findOrFail($id);
-    //     $adminCount = $room->roomUsers->where('role', 'admin')->count();
-    //     // Get the current user's role in the room
-    //     $userRole = $room->userRole(auth()->id());
-    //     return view('main.room', compact('room', 'userRole', 'adminCount'));
-    // }
 }
