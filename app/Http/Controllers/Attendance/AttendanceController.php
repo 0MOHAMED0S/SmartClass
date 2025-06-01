@@ -16,15 +16,18 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AttendanceController extends Controller
 {
-public function scanindex(Request $request,$roomId, $subjectId, $attendId)
+// In AttendanceController.php
+
+public function scanindex(Request $request, $roomId, $subjectId, $attendId)
 {
-    $attend=$attendId;
+    $attend = $attendId;
     $subject = Subject::findOrFail($subjectId);
     $room = Room::findOrFail($roomId);
-    $attendance=Attendance::findOrFail($attendId);
-    return view('main.attend.scan', compact('room', 'subject', 'attend','attendance'));
+    $attendance = Attendance::findOrFail($attendId);
 
+    return view('main.attend.scan', compact('room', 'subject', 'attend', 'attendance'));
 }
+
 public function scan(Request $request)
 {
     $validated = $request->validate([
@@ -50,6 +53,7 @@ public function scan(Request $request)
 
     return response()->json(['message' => 'Attendance marked successfully.']);
 }
+
 
 
 

@@ -1,27 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Simple QR Scanner Test</title>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-</head>
-<body>
-    <h1>QR Scanner Test</h1>
-    <div id="reader" style="width:300px;"></div>
-    <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+@extends('layouts.main')
 
-    <script>
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('result').innerText = "Scanned: " + decodedText;
-        }
+@section('content')
+<div class="container text-center mt-5">
+    <h1 class="mb-4">Scan Student QR Code</h1>
+    <div id="reader" style="width: 300px; margin: auto;"></div>
+    <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
+</div>
+@endsection
 
-        const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            onScanSuccess
-        ).catch(err => {
-            document.getElementById('result').innerText = "Error: " + err;
+@section('outside')
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        $('#scan-result')
+            .removeClass('d-none alert-info alert-danger')
+            .addClass('alert-success')
+            .text(`Scanned: ${decodedText}`);
+
+        $.ajax({
+            url: "{{ route('subjects.attend.scan') }}",
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                qr_code: decodedText,
+                room_id: {{ $room->id }},
+                subject_id: {{ $subject->id }},
+                attend_id: {{ $attend }},
+            },
+            success: function(response) {
+                $('#scan-result').text(response.message || 'Attendance marked!');
+            },
+            error: function(xhr) {
+                $('#scan-result')
+                    .removeClass('alert-success')
+                    .addClass('alert-danger')
+                    .text(xhr.responseJSON?.message || 'Error marking attendance.');
+            }
         });
-    </script>
-</body>
-</html>
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess
+    ).catch(err => {
+        $('#scan-result')
+            .removeClass('d-none')
+            .addClass('alert-danger')
+            .text(`Camera error: ${err}`);
+    });
+</script>
+@endsection
