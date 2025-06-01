@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container text-center mt-5">
-    <h1 class="mb-4">Scan Student QR Code</h1>
+    <h1 class="mb-4">Simple QR Code Scanner Test</h1>
     <div id="reader" style="width: 300px; margin: auto;"></div>
-    <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
+    <div id="result" class="mt-4 alert alert-info d-none">Waiting for scan...</div>
 </div>
 @endsection
 
@@ -14,48 +14,21 @@
 
 <script>
     function onScanSuccess(decodedText, decodedResult) {
-        // Show scanned result
-        $('#scan-result')
-            .removeClass('d-none alert-info')
-            .addClass('alert-success')
-            .text(`Scanned: ${decodedText}`);
-
-        // Send scanned data to server
-        $.ajax({
-            url: "{{ route('subjects.attend.scan') }}",
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                qr_code: decodedText,
-                room_id: {{ $room->id }},
-                subject_id: {{ $subject->id }},
-                attend_id: {{ $attend }},
-            },
-            success: function(response) {
-                $('#scan-result').text(response.message || 'Attendance marked!');
-            },
-            error: function(xhr) {
-                $('#scan-result')
-                    .removeClass('alert-success')
-                    .addClass('alert-danger')
-                    .text(xhr.responseJSON?.message || 'Error marking attendance.');
-            }
-        });
+        document.getElementById('result').classList.remove('d-none');
+        document.getElementById('result').classList.remove('alert-info');
+        document.getElementById('result').classList.add('alert-success');
+        document.getElementById('result').innerText = "Scanned Code: " + decodedText;
     }
 
     const html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: { width: 250, height: 250 }
-        },
+        { facingMode: "environment" }, // use rear camera
+        { fps: 10, qrbox: 250 },
         onScanSuccess
     ).catch(err => {
-        $('#scan-result')
-            .removeClass('d-none')
-            .addClass('alert-danger')
-            .text(`Camera error: ${err}`);
+        document.getElementById('result').classList.remove('d-none');
+        document.getElementById('result').classList.add('alert-danger');
+        document.getElementById('result').innerText = "Error: " + err;
     });
 </script>
 @endsection
