@@ -67,7 +67,7 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',
     ->name('subjects.attend.students');
 
 Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->middleware('doctor.subject')->name('attend.scan.index');
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
 
 
 // ==========================
