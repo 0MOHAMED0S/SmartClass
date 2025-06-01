@@ -66,8 +66,6 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',
     ->middleware('doctor.subject')
     ->name('subjects.attend.students');
 
-Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
 
 
 // ==========================
@@ -90,6 +88,8 @@ Route::get('/rooms/{room}/students/import', [StudentController::class, 'index'])
 Route::post('/rooms/{room}/students/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('students.import');
 
 });
+Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
 
 Route::middleware('auth')->group(function () {
 // Create a new room
