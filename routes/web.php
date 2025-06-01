@@ -66,12 +66,9 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',
     ->middleware('doctor.subject')
     ->name('subjects.attend.students');
 
-
-Route::middleware('doctor.subject')->group(function () {
-    Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan', [AttendanceController::class, 'scanindex'])->name('attend.scan.index');
-});
-
 Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->middleware('doctor.subject')->name('attend.scan.index');
+
 
 // ==========================
 // Attendance Resource
