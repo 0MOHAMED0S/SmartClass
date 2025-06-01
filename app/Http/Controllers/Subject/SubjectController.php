@@ -39,22 +39,22 @@ public function index($Rid, $Sid)
         return redirect()->back()->with('error', 'You are not a member of this room.');
     }
 
-    // If user is a member, fetch their student record and attendance
+    // If user is a member
     if ($roomUser->role === 'member') {
+        $student = null;
         $studentQrCode = null;
-        $student = $room->students->where('id', $user->id)->first(); // assuming `students` relation returns User models
 
-        if ($student) {
-            $student->load(['attendanceRecords' => function ($query) use ($room) {
-                $query->whereIn('attendance_id', $room->attendanceCards->pluck('id'));
-            }]);
-        }
-
-        if ($roomUser && $roomUser->code) {
+        if ($roomUser->code) {
             $student = Student::where('room_id', $Rid)
                 ->where('code', $roomUser->code)
                 ->first();
+
             if ($student) {
+                // Load attendance records only if student exists
+                $student->load(['attendanceRecords' => function ($query) use ($room) {
+                    $query->whereIn('attendance_id', $room->attendanceCards->pluck('id'));
+                }]);
+
                 $studentQrCode = QrCode::size(200)->generate($student->code);
             }
         }
@@ -69,6 +69,7 @@ public function index($Rid, $Sid)
 
     return redirect()->back()->with('error', 'Access denied.');
 }
+
 
 
 
