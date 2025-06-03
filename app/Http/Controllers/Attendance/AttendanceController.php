@@ -29,14 +29,19 @@ public function scanindex(Request $request, $roomId, $subjectId, $attendId)
 
 public function scan(Request $request)
 {
-
     $code = $request->input('qr_code');
     $roomId = $request->input('room_id');
     $subjectId = $request->input('subject_id');
     $attendId = $request->input('attend_id');
 
-    $student=Student::where('code',$code)->get();
-    // Find the record
+    // Get the student
+    $student = Student::where('code', $code)->first();
+
+    if (!$student) {
+        return response()->json(['message' => '❌ Student not found.'], 404);
+    }
+
+    // Find the attendance record
     $record = AttendanceRecord::where('attendance_id', $attendId)
         ->where('room_id', $roomId)
         ->where('subject_id', $subjectId)
@@ -51,8 +56,11 @@ public function scan(Request $request)
     $record->status = 1;
     $record->save();
 
-    return response()->json(['message' => "✅ Attendance marked for student code: $code"]);
+    return response()->json([
+        'message' => "✅ Attendance marked for student code: {$code}"
+    ]);
 }
+
 
 
 
