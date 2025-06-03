@@ -24,21 +24,23 @@ public function scanindex(Request $request, $roomId, $subjectId, $attendId)
     $subject = Subject::findOrFail($subjectId);
     $room = Room::findOrFail($roomId);
     $attendance = Attendance::findOrFail($attendId);
-
     return view('main.attend.scan', compact('room', 'subject', 'attend', 'attendance'));
 }
 
 public function scan(Request $request)
 {
+
     $code = $request->input('qr_code');
     $roomId = $request->input('room_id');
     $subjectId = $request->input('subject_id');
     $attendId = $request->input('attend_id');
 
+    $student=Student::where('code',$code)->get();
     // Find the record
     $record = AttendanceRecord::where('attendance_id', $attendId)
         ->where('room_id', $roomId)
         ->where('subject_id', $subjectId)
+        ->where('student_id', $student->id)
         ->first();
 
     if (!$record) {
