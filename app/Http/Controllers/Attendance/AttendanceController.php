@@ -36,10 +36,9 @@ public function scan(Request $request)
     $attendId = $request->input('attend_id');
 
     // Find the record
-    $record = AttendanceRecord::where('student_code', $code)
+    $record = AttendanceRecord::where('attendance_id', $attendId)
         ->where('room_id', $roomId)
         ->where('subject_id', $subjectId)
-        ->where('attend_id', $attendId)
         ->first();
 
     if (!$record) {
