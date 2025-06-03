@@ -1,56 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>QR Code Scanner</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html5-qrcode CDN -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+@extends('layouts.main')
 
-    <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-6 text-gray-700">📷 Scan a QR Code</h2>
+@section('content')
+<div class="container text-center mt-5">
+    <h1 class="mb-4">📷 Scan Student QR Code</h1>
 
-        <div id="reader" class="rounded overflow-hidden border border-gray-300"></div>
+    <div id="reader" style="width: 300px; margin: auto;"></div>
 
-        <p id="result" class="mt-4 text-center text-green-600 font-semibold"></p>
-    </div>
+    <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
+</div>
+@endsection
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section('outside')
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+<script>
+    function showResult(message, type = 'info') {
+        $('#scan-result')
+            .removeClass('d-none alert-info alert-success alert-danger')
+            .addClass(`alert-${type}`)
+            .text(message);
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        showResult(`✅ Scanned: ${decodedText}`, 'success');
+
+        $.ajax({
+            url: "{{ route('subjects.attend.scan') }}",
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                qr_code: decodedText,
+                room_id: {{ $room->id }},
+                subject_id: {{ $subject->id }},
+                attend_id: {{ $attend }},
+            },
+            success: function(response) {
+                showResult(response.message || '✅ Attendance marked.', 'success');
+            },
+            error: function(xhr) {
+                showResult(xhr.responseJSON?.message || '❌ Error marking attendance.', 'danger');
             }
         });
+    }
 
-        function onScanSuccess(qrCodeMessage) {
-            $('#result').text("✅ Scanned: " + qrCodeMessage);
-
-            $.ajax({
-                url: "{{ route('scan.code') }}",
-                method: "POST",
-                data: { code: qrCodeMessage },
-                success: function(response) {
-                    console.log("Sent to server");
-                },
-                error: function(err) {
-                    console.error("Error:", err);
-                }
-            });
-
-            html5QrcodeScanner.clear(); // Stop scanning after success
-        }
-
-        const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-            fps: 10,
-            qrbox: { width: 250, height: 250 }
-        });
-        html5QrcodeScanner.render(onScanSuccess);
-    </script>
-</body>
-</html>
+    // Start scanner
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess
+    ).catch(err => {
+        showResult(`Camera error: ${err}`, 'danger');
+    });
+</script>
+@endsection

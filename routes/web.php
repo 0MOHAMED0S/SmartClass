@@ -112,6 +112,7 @@ Route::post('/scan-code', function (\Illuminate\Http\Request $request) {
     dd("The code is: " . $code);
 })->name('scan.code');
 
+Route::post('/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
 
 Route::get('/room/{id}/members', [RoomController::class, 'members'])->name('rooms.members');
 Route::get('/attendance/create/{id}', [AttendanceController::class, 'index'])->name('attendance.index');

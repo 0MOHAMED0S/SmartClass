@@ -30,28 +30,27 @@ public function scanindex(Request $request, $roomId, $subjectId, $attendId)
 
 public function scan(Request $request)
 {
-    $validated = $request->validate([
-        'qr_code' => 'required|string',
-        'room_id' => 'required|integer',
-        'subject_id' => 'required|integer',
-        'attend_id' => 'required|integer',
-    ]);
+    $code = $request->input('qr_code');
+    $roomId = $request->input('room_id');
+    $subjectId = $request->input('subject_id');
+    $attendId = $request->input('attend_id');
 
-    $student = Student::where('qr_code', $validated['qr_code'])->first();
-    if (!$student) {
-        return response()->json(['message' => 'Student not found.'], 404);
+    // Find the record
+    $record = AttendanceRecord::where('student_code', $code)
+        ->where('room_id', $roomId)
+        ->where('subject_id', $subjectId)
+        ->where('attend_id', $attendId)
+        ->first();
+
+    if (!$record) {
+        return response()->json(['message' => '❌ No matching attendance record found.'], 404);
     }
 
-    AttendanceRecord::updateOrCreate(
-        [
-            'student_id' => $student->id,
-            'room_id' => $validated['room_id'],
-            'attendance_id' => $validated['attend_id'],
-        ],
-        ['status' => 1]
-    );
+    // Update the status to 1 (present)
+    $record->status = 1;
+    $record->save();
 
-    return response()->json(['message' => 'Attendance marked successfully.']);
+    return response()->json(['message' => "✅ Attendance marked for student code: $code"]);
 }
 
 
