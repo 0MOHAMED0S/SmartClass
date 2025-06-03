@@ -34,7 +34,7 @@
                 qr_code: decodedText,
                 room_id: {{ $room->id }},
                 subject_id: {{ $subject->id }},
-                attend_id: {{ $attend }},
+                attend_id: {{ $attendance->id }},
             },
             success: function(response) {
                 showResult(response.message || '✅ Attendance marked.', 'success');
