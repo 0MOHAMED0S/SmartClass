@@ -30,7 +30,6 @@ public function scanindex(Request $request, $roomId, $subjectId, $attendId)
 
 public function scan(Request $request)
 {
-    dd('poop');die();
     $validated = $request->validate([
         'qr_code' => 'required|string',
         'room_id' => 'required|integer',

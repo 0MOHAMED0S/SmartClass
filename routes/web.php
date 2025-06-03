@@ -66,6 +66,8 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',
     ->middleware('doctor.subject')
     ->name('subjects.attend.students');
 
+Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
 
 
 // ==========================
@@ -88,8 +90,6 @@ Route::get('/rooms/{room}/students/import', [StudentController::class, 'index'])
 Route::post('/rooms/{room}/students/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('students.import');
 
 });
-Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
 
 Route::middleware('auth')->group(function () {
 // Create a new room
@@ -107,7 +107,10 @@ Route::get('/login/google', [GoogleAuthController::class, 'redirectToGoogle'])->
 Route::get('/login/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 });
 
-
+Route::post('/scan-code', function (\Illuminate\Http\Request $request) {
+    $code = $request->input('code');
+    dd("The code is: " . $code);
+})->name('scan.code');
 
 
 Route::get('/room/{id}/members', [RoomController::class, 'members'])->name('rooms.members');
