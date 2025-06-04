@@ -10,12 +10,12 @@
             </div>
 
             <!-- Form -->
-            <form action="{{ route('attendance.store', ['room' => $room->id, 'subject' => $subject->id]) }}" method="POST">
+            <form action="{{ route('rooms.subjects.attendance.store', ['room' => $room->id, 'subject' => $subject->id]) }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <label for="attendanceName-{{ $room->id }}" class="form-label fw-semibold">Attendance Name</label>
                     <div class="input-group">
-                        <input type="text" id="attendanceName-{{ $room->id }}" name="name" class="form-control" placeholder="Enter attendance title..." required>
+                        <input type="text" id="attendanceName-{{ $room->id }}" name="name" class="form-control" placeholder="Enter attendance title..." >
                     </div>
                 </div>
 
@@ -32,34 +32,3 @@
         </div>
     </div>
 </div>
-<style>
-    /* Icon Selection Visuals */
-    .icon-radio:checked + img {
-        border: 2px solid #198754;
-        box-shadow: 0 0 10px rgba(25, 135, 84, 0.6);
-        border-radius: 0.5rem;
-    }
-
-    .icon-radio:checked ~ .checkmark {
-        display: block !important;
-    }
-
-    .selectable-icon {
-        cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .selectable-icon:hover {
-        transform: scale(1.05);
-    }
-
-    /* Scrollbar Styling */
-    .d-grid::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .d-grid::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-</style>

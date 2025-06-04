@@ -12,14 +12,12 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
 {
-public function redirectToGoogle(): RedirectResponse
-{
-    return Socialite::driver('google')
-                    ->with(['prompt' => 'select_account'])
-                    ->redirect();
-}
-
-
+    public function redirectToGoogle(): RedirectResponse
+    {
+        return Socialite::driver('google')
+            ->with(['prompt' => 'select_account'])
+            ->redirect();
+    }
     public function handleGoogleCallback(): RedirectResponse
     {
         $user = Socialite::driver('google')->user();
@@ -34,7 +32,7 @@ public function redirectToGoogle(): RedirectResponse
             $newUser->email = $user->email;
             $newUser->google_id = $user->id;
             $newUser->password = bcrypt(request(Str::random())); // Set some random password
-            $newUser->path= $newUser->path = $user->avatar;
+            $newUser->path = $newUser->path = $user->avatar;
             $newUser->save();
             // Log in the new user.
             Auth::login($newUser, true);

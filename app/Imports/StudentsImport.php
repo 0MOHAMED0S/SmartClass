@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Jobs\ImportStudentsJob;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
@@ -12,10 +13,8 @@ use Illuminate\Validation\ValidationException;
 class StudentsImport implements ToCollection, WithHeadingRow
 {
     private $room_id;
-    private $errors = [];
     private $validRows = [];
 
-    // Constructor to receive the room_id
     public function __construct($room_id)
     {
         $this->room_id = $room_id;
@@ -23,35 +22,56 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        $codesInFile = [];
+        $seenCodes = [];
+
         foreach ($rows as $index => $row) {
             $row = array_change_key_case(array_map('trim', $row->toArray()), CASE_LOWER);
 
-            // Validate each row
             $validator = Validator::make($row, [
-                'name'  => 'required|string|max:255',
-                'code'  => 'required|string|unique:students,code',
-                'sec'   => 'required|integer|min:1|max:5',
+                'name' => 'required|string|max:255',
+                'code' => 'required|string',
+                'sec'  => 'required|integer|min:1|max:5',
             ]);
 
             if ($validator->fails()) {
-                $this->errors[] = "Row " . ($index + 2) . ": " . implode(', ', $validator->errors()->all());
-            } else {
-                $this->validRows[] = $row;
+                throw ValidationException::withMessages([
+                    'errors' => ["Row " . ($index + 2) . ": " . implode(', ', $validator->errors()->all())]
+                ]);
             }
+
+            $code = $row['code'] ?? null;
+
+            // Check for duplicate code in file
+            if (in_array($code, $seenCodes)) {
+                throw ValidationException::withMessages([
+                    'errors' => ["Duplicate code found in file: {$code} at row " . ($index + 2)]
+                ]);
+            }
+            $seenCodes[] = $code;
+
+            // Check for existing code in database
+            if (Student::where('code', $code)->exists()) {
+                throw ValidationException::withMessages([
+                    'errors' => ["Code '{$code}' already exists in the database at row " . ($index + 2)]
+                ]);
+            }
+
+            $this->validRows[] = $row;
         }
 
-        if (!empty($this->errors)) {
-            throw ValidationException::withMessages(['errors' => $this->errors]);
-        }
+        // Prepare and dispatch bulk insert job
+        $studentsToInsert = array_map(function ($row) {
+            return [
+                'name'       => $row['name'],
+                'code'       => $row['code'],
+                'section'    => $row['sec'],
+                'room_id'    => $this->room_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $this->validRows);
 
-        // Insert valid students into the database with room_id
-        foreach ($this->validRows as $row) {
-            Student::create([
-                'name'    => $row['name'],
-                'code'    => $row['code'],
-                'section' => $row['sec'],
-                'room_id' => $this->room_id, // Assigning room_id
-            ]);
-        }
+        dispatch(new ImportStudentsJob($studentsToInsert));
     }
 }

@@ -9,65 +9,64 @@ use App\Http\Controllers\Subject\SubjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Student\StudentController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', function () {return view('welcome');})->name('home');//done
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// ==========================
+// Google Resource
+// ==========================
+
+Route::middleware('guest')->group(function () {
+Route::get('/login/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('login'); //done
+Route::get('/login/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']); //done
 });
+
 
 // ==========================
 // Room Resource
 // ==========================
 
+Route::middleware('auth')->group(function () {
+// Create a new room
+Route::post('/rooms', [RoomController::class, 'store'])->middleware('admin')->name('rooms.store'); //done
+// Join a room
+Route::post('/rooms/join', [RoomController::class, 'join'])->name('rooms.join'); //done
+Route::get('/rooms/quick-join/{code}', [RoomController::class, 'quickJoin'])->name('rooms.quickJoin');//done
+});
+
+
 Route::middleware(['auth', 'joined.room'])->group(function () {
-
-
+// List all rooms
+Route::get('/rooms/{room}/subjects', [RoomController::class, 'index'])->name('subjects.index');//done
 // Connect students to a room
-Route::post('/rooms/{room}/students/connect', [RoomController::class, 'connect'])->name('rooms.students.connect');
+Route::post('/rooms/{room}/subjects', [RoomController::class, 'connect'])->name('rooms.subjects.connect');//done
 
-// Get students in a room
-Route::get('/rooms/{room}/students', [StudentController::class, 'getStudents'])->middleware('admin')->name('rooms.students');
 
 
 // ==========================
 // Subject Resource
 // ==========================
 
-// List all rooms
-Route::get('/rooms/subjects/{room}', [RoomController::class, 'index'])->name('subjects.index')->middleware('joined.room');
-
-// Show subject details
-Route::get('subjects/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
-
-// Store subject data (e.g., assign to room)
-Route::post('subjects/{room}', [SubjectController::class, 'store'])->middleware('admin')->name('subjects.store');
-
-//make doctor
-Route::post('subjects/{room}/{subject}', [SubjectController::class, 'doctor'])->middleware('admin')->name('subjects.doctor');
+// Store subject
+Route::post('/rooms/{room}/subjects/store', [SubjectController::class, 'store'])->middleware('admin')->name('rooms.subjects.store');//done
 
 // Show subject in a room
-Route::get('/rooms/{room}/subjects/{subject}', [SubjectController::class, 'index'])->name('rooms.subjects.show');
+Route::get('/rooms/{room}/subjects/{subject}', [SubjectController::class, 'index'])->name('rooms.subjects.show');//done
 
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}',
-    [AttendanceController::class, 'attend'])
-    ->middleware('doctor.subject')
-    ->name('subjects.attend');
+//make doctor
+Route::post('subjects/{room}/subjects{subject}', [SubjectController::class, 'doctor'])->middleware('admin')->name('rooms.subjects.doctor');//done
 
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',
-    [AttendanceController::class, 'attendStudents'])
-    ->middleware('doctor.subject')
-    ->name('subjects.attend.students');
 
-Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->name('attend.scan.index');
+
+// ==========================
+// Student Resource
+// ==========================
+
+// Import students into a room
+Route::get('/rooms/{room}/subjects/import', [StudentController::class, 'index'])->middleware('admin')->name('rooms.students.index');//done
+Route::post('/rooms/{room}/subjects/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('rooms.students.import');//done
+// Get students in a room
+Route::get('/rooms/{room}/subjects/import/students', [StudentController::class, 'getStudents'])->middleware('admin')->name('rooms.students');//done
 
 
 // ==========================
@@ -75,53 +74,31 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceCo
 // ==========================
 
 // Create attendance for a room and subject
-Route::post('/rooms/{room}/subjects/{subject}/attendance', [AttendanceController::class, 'store'])->middleware('doctor.subject')->name('attendance.store');
-
+Route::post('/rooms/{room}/subjects/{subject}/attendance', [AttendanceController::class, 'store'])->middleware('doctor.subject')->name('rooms.subjects.attendance.store');//done
 // Get students for attendance in a room
-Route::get('/rooms/{room}/attendance/students/{subject}', [AttendanceController::class, 'getStudents'])->middleware('doctor.subject')->name('attendance.students');
+Route::get('/rooms/{room}/attendance/students/{subject}', [AttendanceController::class, 'getStudents'])->middleware('doctor.subject')->name('attendance.students');//done
+// Create attendance for a subject
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}',[AttendanceController::class, 'attend'])->middleware('doctor.subject')->name('subjects.attend');//done
+//get subject attend
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',[AttendanceController::class, 'attendStudents'])->middleware('doctor.subject')->name('subjects.attend.students');//done
+//scan
+Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->middleware('doctor.subject')->name('attend.scan.index');
 
-
-// ==========================
-// Student Resource
-// ==========================
-
-// Import students into a room (you can also use this as POST if uploading files)
-Route::get('/rooms/{room}/students/import', [StudentController::class, 'index'])->middleware('admin')->name('students.index');
-Route::post('/rooms/{room}/students/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('students.import');
+Route::post('/subjects/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
 
 });
+
+
+
+
 
 Route::middleware('auth')->group(function () {
-// Create a new room
-Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
-// Join a room
-Route::post('/rooms/join', [RoomController::class, 'join'])->name('rooms.join');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
-// ==========================
-// Google Resource
-// ==========================
-
-Route::middleware('guest')->group(function () {
-Route::get('/login/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/login/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
-});
-
-Route::post('/scan-code', function (\Illuminate\Http\Request $request) {
-    $code = $request->input('code');
-    dd("The code is: " . $code);
-})->name('scan.code');
-
-Route::post('/attend/scan', [AttendanceController::class, 'scan'])->name('subjects.attend.scan');
-
-Route::get('/room/{id}/members', [RoomController::class, 'members'])->name('rooms.members');
-Route::get('/attendance/create/{id}', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::get('/attendance/create/admin/{id}', [AttendanceController::class, 'indexAdmin'])->name('attendance.indexAdmin');
-Route::post('/attendance/student/connect/{roomId}', [AttendanceController::class, 'connect'])->name('attendance.connect');
-
-
-Route::get('/students/upload', [StudentController::class, 'showUploadForm']);
-// Route::post('/students/d:\dashboard\assets', [StudentController::class, 'import'])->name('students.import');
-// Route::post('/rooms/{room}/import-students', [StudentController::class, 'importStudents'])
-//     ->name('students.import');
 require __DIR__.'/auth.php';

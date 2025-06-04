@@ -1,4 +1,4 @@
-<div class="modal fade" id="addsubject-{{$room->id}}" tabindex="-1" aria-labelledby="addRoomLabel" aria-hidden="true">
+<div class="modal fade" id="addsubject-{{ $room->id }}" tabindex="-1" aria-labelledby="addRoomLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg rounded-4">
             <div class="modal-header bg-success text-white">
@@ -9,7 +9,7 @@
                     aria-label="Close"></button>
             </div>
 
-            <form action="{{route('subjects.store',$room->id)}}" method="POST">
+            <form action="{{ route('rooms.subjects.store', $room->id) }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <!-- Room Name -->
@@ -35,25 +35,38 @@
                             style="max-height: 170px; grid-template-columns: repeat(6, 1fr);">
                             @php
                                 $icons = [
+                                    'https://cdn-icons-png.flaticon.com/512/5968/5968350.png',
+                                    'https://cdn-icons-png.flaticon.com/512/226/226777.png',
+                                    'https://cdn-icons-png.flaticon.com/512/5968/5968292.png',
+                                    'https://cdn-icons-png.flaticon.com/512/5968/5968332.png',
+                                    'https://cdn-icons-png.flaticon.com/512/5968/5968267.png',
+                                    'https://cdn-icons-png.flaticon.com/512/5968/5968242.png',
+                                    'https://cdn-icons-png.flaticon.com/512/6132/6132221.png',
+                                    'https://cdn-icons-png.flaticon.com/512/6132/6132222.png',
+                                    'https://cdn-icons-png.flaticon.com/512/6132/6132220.png',
+                                    'https://cdn-icons-png.flaticon.com/512/4248/4248443.png',
+                                    'https://cdn-icons-png.flaticon.com/512/919/919836.png',
+                                    'https://cdn-icons-png.flaticon.com/512/5969/5969101.png',
+                                    'https://cdn-icons-png.flaticon.com/512/733/733553.png',
                                     'https://cdn-icons-png.flaticon.com/512/3593/3593422.png',
                                     'https://cdn-icons-png.flaticon.com/512/3593/3593441.png',
                                     'https://cdn-icons-png.flaticon.com/512/3593/3593462.png',
                                     'https://cdn-icons-png.flaticon.com/512/9072/9072569.png',
                                     'https://cdn-icons-png.flaticon.com/512/2354/2354280.png',
                                     'https://cdn-icons-png.flaticon.com/512/3449/3449632.png',
-                                    'https://cdn-icons-png.flaticon.com/512/185/185570.png'  ,
+                                    'https://cdn-icons-png.flaticon.com/512/185/185570.png',
                                     'https://cdn-icons-png.flaticon.com/512/6660/6660279.png',
                                     'https://cdn-icons-png.flaticon.com/512/5608/5608848.png',
                                     'https://cdn-icons-png.flaticon.com/512/3874/3874104.png',
-                                    'https://cdn-icons-png.flaticon.com/512/167/167707.png'  ,
+                                    'https://cdn-icons-png.flaticon.com/512/167/167707.png',
                                     'https://cdn-icons-png.flaticon.com/512/3103/3103446.png',
                                     'https://cdn-icons-png.flaticon.com/512/1995/1995581.png',
-                                    'https://cdn-icons-png.flaticon.com/512/906/906175.png'  ,
-                                    'https://cdn-icons-png.flaticon.com/512/942/942748.png'  ,
+                                    'https://cdn-icons-png.flaticon.com/512/906/906175.png',
+                                    'https://cdn-icons-png.flaticon.com/512/942/942748.png',
                                     'https://cdn-icons-png.flaticon.com/512/3515/3515781.png',
                                     'https://cdn-icons-png.flaticon.com/512/3095/3095583.png',
                                     'https://cdn-icons-png.flaticon.com/512/6816/6816631.png',
-                                    'https://cdn-icons-png.flaticon.com/512/747/747310.png'  ,
+                                    'https://cdn-icons-png.flaticon.com/512/747/747310.png',
                                     'https://cdn-icons-png.flaticon.com/512/10714/10714533.png',
                                     'https://cdn-icons-png.flaticon.com/512/609/609803.png',
                                     'https://cdn-icons-png.flaticon.com/512/545/545705.png',
@@ -98,34 +111,3 @@
         </div>
     </div>
 </div>
-
-<!-- Custom CSS + JS to Highlight Selected Icon -->
-<style>
-    .icon-radio:checked+img {
-        border-color: #198754 !important;
-        box-shadow: 0 0 10px rgba(25, 135, 84, 0.6);
-    }
-
-    .icon-radio:checked~.checkmark {
-        display: block !important;
-    }
-
-    .selectable-icon {
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .selectable-icon:hover {
-        transform: scale(1.05);
-    }
-</style>
-<style>
-    .d-grid::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .d-grid::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-</style>

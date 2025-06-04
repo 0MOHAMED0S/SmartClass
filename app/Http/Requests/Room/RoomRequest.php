@@ -53,7 +53,7 @@ class RoomRequest extends FormRequest
             'https://cdn-icons-png.flaticon.com/512/1828/1828645.png',
         ];
         return [
-        'name' => 'required|string|max:255',
+        'name' => 'required|string|max:25',
         'path' => ['required', 'url', Rule::in($icons)],
         ];
     }

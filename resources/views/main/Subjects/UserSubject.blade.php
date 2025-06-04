@@ -1,11 +1,24 @@
 @extends('layouts.main')
+@section('styles')
+    <style>
+        /* Scrollbar styling */
+        div[style*="overflow-y: auto"]::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+    </style>
+    <style>
+        .main-content {
+            min-height: 50vh !important;
+            height: auto;
+        }
+    </style>
+@endsection
 @section('modals')
-<style>
-    .main-content {
-    min-height: 50vh !important;
-    height: auto;
-    }
-</style>
     @include('main.SubjectModals.connect')
     @include('main.SubjectModals.addAttend')
 @endsection
@@ -66,14 +79,3 @@
         </div>
     @endif
 @endsection
-<style>
-    /* Scrollbar styling */
-    div[style*="overflow-y: auto"]::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-</style>

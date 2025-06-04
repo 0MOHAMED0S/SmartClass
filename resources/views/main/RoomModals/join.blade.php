@@ -5,7 +5,8 @@
                 <h5 class="modal-title d-flex align-items-center" id="joinRoomLabel">
                     <i class="fas fa-door-open me-2"></i> Join a Room
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
 
             <form action="{{ route('rooms.join') }}" method="POST" enctype="multipart/form-data">
@@ -15,11 +16,8 @@
                         <label for="roomCode" class="form-label">
                             <i class="fas fa-key me-1 text-muted"></i> Room Code
                         </label>
-                        <input type="text"
-                               class="form-control @error('code') is-invalid @enderror"
-                               id="roomCode"
-                               name="code"
-                               placeholder="Enter the room code">
+                        <input type="text" class="form-control @error('code') is-invalid @enderror" id="roomCode"
+                            name="code" placeholder="Enter the room code">
                         @error('code')
                             <div class="invalid-feedback">
                                 <i class="fas fa-exclamation-circle me-1"></i> {{ $message }}
@@ -37,7 +35,3 @@
         </div>
     </div>
 </div>
-
-
-
-

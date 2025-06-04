@@ -2,10 +2,10 @@
 @section('modals')
     @auth
         @if (auth()->user()->role == 'admin')
-        @include('main.RoomModals.add')
-    @endif
+            @include('main.RoomModals.add')
+        @endif
+        @include('main.RoomModals.join')
     @endauth
-    @include('main.RoomModals.join')
 @endsection
 @section('content')
     <div class="mb-3">
@@ -14,7 +14,7 @@
     <h1><strong>Smart Class</strong></h1>
 
     @guest
-        <a href="{{ route('auth.google') }}" class="btn btn-login">
+        <a href="{{ route('login') }}" class="btn btn-login">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo"
                 style="width: 20px; height: 20px; margin-right: 8px;" />
             Sign in with Google
@@ -42,17 +42,17 @@
                 <h5 class="text-warning mb-4">Joined Rooms:</h5>
                 <div style="max-height: 120px; overflow-y: auto;">
                     <ul class="list-group list-group-flush">
-                        @if (isset($sidebarRooms) && $sidebarRooms->count())
-                            @foreach ($sidebarRooms as $room)
-                                <li class="list-group-item d-flex align-items-center gap-3 px-0" style="height: 40px;">
-                                    <img src="{{ $room->path }}" alt="Math 101" class="rounded-circle"
-                                        style="width: 36px; height: 36px; object-fit: cover;">
-                                    <a href="{{ route('subjects.index', $room->id) }}"
-                                        class="text-decoration-none fw-semibold text-dark flex-grow-1">{{ $room->name }}</a>
-                                    <i class="fas fa-door-open text-success"></i>
-                                </li>
-                            @endforeach
-                        @endif
+                        @forelse ($sidebarRooms as $room)
+                            <li class="list-group-item d-flex align-items-center gap-3 px-0" style="height: 40px;">
+                                <img src="{{ $room->path }}" alt="{{ $room->name }}" class="rounded-circle"
+                                    style="width: 36px; height: 36px; object-fit: cover;">
+                                <a href="{{ route('subjects.index', $room->id) }}"
+                                    class="text-decoration-none fw-semibold text-dark flex-grow-1">{{ $room->name }}</a>
+                                <i class="fas fa-door-open text-success"></i>
+                            </li>
+                        @empty
+                            <li class="list-group-item text-muted text-center">No rooms joined yet.</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>

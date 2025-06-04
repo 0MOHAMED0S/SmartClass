@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -14,6 +17,7 @@
             --accent: #3cff00;
             --light-bg: #f7f9fc;
         }
+
         /* body,
         html {
             margin: 0;
@@ -23,20 +27,24 @@
             background: linear-gradient(to bottom right, #e6eaff, #ffffff);
             overflow: hidden;
         } */
-         body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to bottom right, #e6eaff, #ffffff);
-    overflow-x: hidden; /* prevent horizontal scrolling */
-    overflow-y: auto;   /* allow vertical scrolling */
-}
-.main-content {
-    min-height: 100vh;
-    padding: 40px 15px;
-    overflow-y: auto;
-}
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom right, #e6eaff, #ffffff);
+            overflow-x: hidden;
+            /* prevent horizontal scrolling */
+            overflow-y: auto;
+            /* allow vertical scrolling */
+        }
+
+        .main-content {
+            min-height: 100vh;
+            padding: 40px 15px;
+            overflow-y: auto;
+        }
 
 
         /* Creative Loader */
@@ -168,68 +176,39 @@
         }
     </style>
     <style>
-    .icon-radio:checked+img {
-        border-color: #198754 !important;
-        box-shadow: 0 0 10px rgba(25, 135, 84, 0.6);
-    }
+        .icon-radio:checked+img {
+            border-color: #198754 !important;
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.6);
+        }
 
-    .icon-radio:checked~.checkmark {
-        display: block !important;
-    }
+        .icon-radio:checked~.checkmark {
+            display: block !important;
+        }
 
-    .selectable-icon {
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-    }
+        .selectable-icon {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
 
-    .selectable-icon:hover {
-        transform: scale(1.05);
-    }
-</style>
-<style>
-    .d-grid::-webkit-scrollbar {
-        width: 6px;
-    }
+        .selectable-icon:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <style>
+        .d-grid::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    .d-grid::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-</style>
+        .d-grid::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+    </style>
+    @yield('styles')
 </head>
 
 <body>
-    @yield('modals')
 
-@if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow" role="alert" style="z-index: 1055; width: 90%; max-width: 500px;">
-        <strong><i class="fas fa-exclamation-triangle me-2"></i>Validation Error!</strong>
-        <ul class="mb-0 mt-1 ps-3">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-{{-- Fixed Success Message --}}
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow" role="alert" style="z-index: 1055; width: 90%; max-width: 500px;">
-        <strong><i class="fas fa-check-circle me-2"></i>Success!</strong>
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-{{-- Fixed Error Message --}}
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow" role="alert" style="z-index: 1055; width: 90%; max-width: 500px;">
-        <strong><i class="fas fa-times-circle me-2"></i>Error!</strong>
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
     <!-- Creative Loader -->
     <div id="loader">
         <div class="loader-title">Smart Class</div>
@@ -241,61 +220,81 @@
             <div class="dot"></div>
         </div>
     </div>
+    @include('layouts.alert')
+    @yield('modals')
 
     <!-- Main Content -->
-<div class="main-content flex-column">
-    @auth
-        <!-- Header Above Card -->
-        <div class="bg-white shadow-sm rounded px-3 py-2 mb-2 w-100 d-flex justify-content-between align-items-center" style="max-width: 600px;">
+    <div class="main-content flex-column">
+        @auth
+            <!-- Header Above Card -->
+            <div class="bg-white shadow-sm rounded px-3 py-2 mb-2 w-100 d-flex justify-content-between align-items-center"
+                style="max-width: 600px;">
 
-            <!-- User Name (Right) -->
-            <div class="fw-semibold text-dark">
-                <img src="{{ asset('assets/MainFiles/logo.png') }}" alt="Math 101"
-                                class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
-                {{-- <i class="fas fa-user-circle me-1 text-primary"></i> --}}
-                {{ Auth::user()->name }}
+                <!-- User Name (Right) -->
+                <div class="fw-semibold text-dark">
+                    <img src="{{ asset('assets/MainFiles/logo.png') }}" alt="Math 101" class="rounded-circle"
+                        style="width: 36px; height: 36px; object-fit: cover;">
+                    {{-- <i class="fas fa-user-circle me-1 text-primary"></i> --}}
+                    {{ Auth::user()->name }}
+                </div>
+
+                <!-- Logout Form (Left) -->
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </button>
+                </form>
+
             </div>
+        @endauth
 
-            <!-- Logout Form (Left) -->
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-sign-out-alt me-1"></i> Logout
-                </button>
-            </form>
-
+        <!-- Card Below Header -->
+        <div class="card w-100" style="max-width: 600px; overflow-y: auto;">
+            @yield('content')
         </div>
-    @endauth
 
-    <!-- Card Below Header -->
-    <div class="card w-100" style="max-width: 600px; overflow-y: auto;">
-    @yield('content')
-</div>
-
-</div>
-@yield('outside')
+    </div>
+    @yield('outside')
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Hide loader after delay -->
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Successful!',
+                text: "{{ session('success') }}",
+                confirmButtonText: 'OK',
+                timer: 10000, // optional auto close
+                timerProgressBar: true
+            }).then(() => {
+                setTimeout(() => {
+                    location.reload(); // Refresh after 1 minute
+                }, 60000);
+            });
+        </script>
+    @endif
     <script>
         window.addEventListener("load", () => {
             setTimeout(() => {
                 const loader = document.getElementById("loader");
                 loader.style.opacity = 0;
                 setTimeout(() => loader.style.display = "none", 600);
-            }, 2000); // Duration of loader
+            }, 1000); // Duration of loader
         });
     </script>
     <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const alert = document.querySelector('.alert');
-        if (alert) {
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 7000); // Hide after 5 seconds
-        }
-    });
-</script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000); // Hide after 5 seconds
+            }
+        });
+    </script>
+    @yield('scripts')
 </body>
 </html>

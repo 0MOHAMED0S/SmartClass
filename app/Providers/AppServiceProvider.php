@@ -26,14 +26,12 @@ class AppServiceProvider extends ServiceProvider
     {
 
         Gate::define('room-role', function (User $user, Room $room, ...$roles) {
-    $roomUser = $user->rooms()->where('rooms.id', $room->id)->first();
-
-    if (!$roomUser) {
-        return false;
-    }
-
-    return in_array($roomUser->pivot->role, $roles);
-});
+            $roomUser = $user->rooms()->where('rooms.id', $room->id)->first();
+            if (!$roomUser) {
+                return false;
+            }
+            return in_array($roomUser->pivot->role, $roles);
+        });
 
         View::composer('*', function ($view) {
             if (Auth::check()) {

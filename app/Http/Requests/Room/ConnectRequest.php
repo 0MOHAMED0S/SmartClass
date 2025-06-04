@@ -4,7 +4,7 @@ namespace App\Http\Requests\Room;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class JoinRoomRequest extends FormRequest
+class ConnectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class JoinRoomRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string|size:6'
+            'code' => 'required|string|regex:/^\d{1,6}$/',
         ];
     }
 }

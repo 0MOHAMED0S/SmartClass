@@ -9,7 +9,7 @@
                     aria-label="Close"></button>
             </div>
 
-            <form action="{{ route('rooms.store') }}" method="POST">
+            <form action="{{ route('rooms.store') }}" method="POST" >
                 @csrf
                 <div class="modal-body">
                     <!-- Room Name -->
@@ -98,6 +98,3 @@
         </div>
     </div>
 </div>
-
-<!-- Custom CSS + JS to Highlight Selected Icon -->
-
