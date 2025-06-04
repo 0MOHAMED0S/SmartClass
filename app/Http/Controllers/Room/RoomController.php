@@ -134,7 +134,7 @@ class RoomController extends Controller
                 'role' => 'member',
             ]);
 
-            return redirect()->route('rooms.show', $room->id)->with('success', '✅ You joined the room successfully.');
+            return redirect()->route('subjects.index', $room->id)->with('success', '✅ You joined the room successfully.');
         } catch (\Exception $e) {
             return redirect()->route('home')->with('error', '❌ Error joining room.');
         }
