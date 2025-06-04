@@ -91,7 +91,7 @@ class RoomController extends Controller
                 ->first();
 
             if ($alreadyJoined) {
-                return redirect()->back()->with('info', 'ℹ️ You are already in this room.');
+                return redirect()->route('subjects.index', $room->id)->with('info', 'ℹ️ You are already in this room.');
             }
 
             // Add user to room
@@ -124,7 +124,7 @@ class RoomController extends Controller
                 ->exists();
 
             if ($alreadyJoined) {
-                return redirect()->route('rooms.show', $room->id)->with('info', 'ℹ️ You are already in this room.');
+                return redirect()->route('subjects.index', $room->id)->with('info', 'ℹ️ You are already in this room.');
             }
 
             // Join the room
