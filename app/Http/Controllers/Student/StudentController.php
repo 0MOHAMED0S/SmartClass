@@ -19,7 +19,9 @@ class StudentController extends Controller
             // Load room and students
             $room = Room::with('students')->findOrFail($id);
             return view('main.Room.import', compact('room'));
-        }catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
+            return redirect()->back()->with('error', 'Room or Subject not found.');
+        } catch (\Exception $e) {
             Log::error("Error loading room: " . $e->getMessage());
             return redirect()->back()->with('error', '❌ Something went wrong while loading the room.');
         }
