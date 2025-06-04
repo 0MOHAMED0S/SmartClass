@@ -63,10 +63,10 @@ Route::post('subjects/{room}/subjects{subject}', [SubjectController::class, 'doc
 // ==========================
 
 // Import students into a room
-Route::get('/rooms/{room}/subjects/import', [StudentController::class, 'index'])->middleware('admin')->name('rooms.students.index');//done
-Route::post('/rooms/{room}/subjects/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('rooms.students.import');//done
+Route::get('/rooms/{room}/subjects/students/import', [StudentController::class, 'index'])->middleware('admin')->name('rooms.students.index');//done
+Route::post('/rooms/{room}/subjects/students/import', [StudentController::class, 'importStudents'])->middleware('admin')->name('rooms.students.import');//done
 // Get students in a room
-Route::get('/rooms/{room}/subjects/import/students', [StudentController::class, 'getStudents'])->middleware('admin')->name('rooms.students');//done
+Route::get('/rooms/{room}/subjects/students', [StudentController::class, 'getStudents'])->middleware('admin')->name('rooms.students');//done
 
 
 // ==========================
