@@ -1,41 +1,35 @@
 @extends('layouts.main')
-@section('styles')
-<style>
-    #reader {
-    min-height: 250px;
-    background-color: #f8f9fa;
-}
 
-</style>
-@endsection
 @section('content')
-<div class="container d-flex justify-content-center align-items-center mt-5">
-    <div class="card shadow-lg rounded-4 p-4" style="max-width: 400px; width: 100%;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg rounded-4 p-4 w-100" style="max-width: 420px;">
         <h2 class="text-center mb-4">📷 Scan Student QR Code</h2>
 
-        <div id="reader" class="border rounded-3" style="width: 100%; height: auto;"></div>
+        <!-- QR Scanner Box -->
+        <div id="reader" class="border rounded-3 mx-auto" style="width: 100%; height: auto; max-width: 320px;"></div>
 
-        <div id="scan-result" class="mt-4 alert text-center d-none">
-            <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
-                <span class="visually-hidden">Scanning...</span>
+        <!-- Scan Result -->
+        <div id="scan-result" class="mt-4 alert d-none text-center fw-semibold">
+            <div class="spinner-border text-primary me-2" role="status" style="width: 1rem; height: 1rem;">
+                <span class="visually-hidden">Loading...</span>
             </div>
-            <span class="ms-2">Scanning...</span>
+            <span>Scanning...</span>
         </div>
     </div>
 </div>
 @endsection
 
 @section('outside')
-<!-- QR Code Scanner Library -->
+<!-- Libraries -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
     function showResult(message, type = 'info') {
-        const resultEl = $('#scan-result');
-        resultEl.removeClass('d-none alert-info alert-success alert-danger')
-                .addClass(`alert alert-${type}`)
-                .html(`<strong>${message}</strong>`);
+        $('#scan-result')
+            .removeClass('d-none alert-info alert-success alert-danger')
+            .addClass(`alert alert-${type}`)
+            .html(`<strong>${message}</strong>`);
     }
 
     function onScanSuccess(decodedText, decodedResult) {
@@ -60,17 +54,14 @@
         });
     }
 
+    // Initialize scanner
     const html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess
     ).catch(err => {
-        showResult(`📷 Camera error: ${err}`, 'danger');
+        showResult(`❌ Camera error: ${err}`, 'danger');
     });
 </script>
 @endsection
