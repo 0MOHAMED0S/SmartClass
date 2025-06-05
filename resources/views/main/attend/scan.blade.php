@@ -1,5 +1,13 @@
 @extends('layouts.main')
+@section('styles')
+<style>
+    #reader {
+    min-height: 250px;
+    background-color: #f8f9fa;
+}
 
+</style>
+@endsection
 @section('content')
 <div class="container d-flex justify-content-center align-items-center mt-5">
     <div class="card shadow-lg rounded-4 p-4" style="max-width: 400px; width: 100%;">
