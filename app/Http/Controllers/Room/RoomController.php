@@ -171,30 +171,4 @@ class RoomController extends Controller
         }
     }
 
-
-
-
-
-
-
-
-
-
-    public function show($id)
-    {
-        $room = Room::with('students', 'roomUsers')->findOrFail($id);
-        $qrCode = QrCode::size(200)->generate($room->code);
-        $adminCount = $room->roomUsers->where('role', 'admin')->count();
-        // Get the current user's role in the room
-        $userRole = $room->userRole(auth()->id());
-        return view('main.room', compact('room', 'qrCode', 'userRole', 'adminCount'));
-    }
-    public function members($id)
-    {
-        $room = Room::with('roomUsers.user')->findOrFail($id);
-        $qrCode = QrCode::size(200)->generate($room->code);
-        // Count admins (teachers)
-        $adminCount = $room->roomUsers->where('role', 'admin')->count();
-        return view('main.members', compact('room', 'qrCode', 'adminCount'));
-    }
 }
