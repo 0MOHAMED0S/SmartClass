@@ -15,13 +15,7 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-    let html5QrCode;
-    let scannerRunning = false;
-
     function showResult(message, type = 'info') {
         $('#scan-result')
             .removeClass('d-none alert-info alert-success alert-danger')
@@ -29,31 +23,8 @@
             .text(message);
     }
 
-    function stopScanner() {
-        if (html5QrCode && scannerRunning) {
-            html5QrCode.stop().then(() => {
-                scannerRunning = false;
-            }).catch(err => {
-                console.error("Failed to stop scanner", err);
-            });
-        }
-    }
-
-    function startScanner() {
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            onScanSuccess
-        ).then(() => {
-            scannerRunning = true;
-        }).catch(err => {
-            showResult(`Camera error: ${err}`, 'danger');
-        });
-    }
-
     function onScanSuccess(decodedText, decodedResult) {
-        stopScanner(); // Stop scanning
+        showResult(`✅ Scanned: ${decodedText}`, 'success');
 
         $.ajax({
             url: "{{ route('subjects.attend.scan', [$room->id, $subject->id, $attend]) }}",
@@ -61,37 +32,27 @@
             data: {
                 _token: '{{ csrf_token() }}',
                 qr_code: decodedText,
+                room_id: {{ $room->id }},
+                subject_id: {{ $subject->id }},
                 attend_id: {{ $attendance->id }},
             },
             success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Successful!',
-                    text: response.message || '✅ Attendance marked.',
-                    confirmButtonText: 'OK',
-                    timer: 10000,
-                    timerProgressBar: true
-                }).then(() => {
-                    startScanner(); // Restart scanning
-                });
+                showResult(response.message || '✅ Attendance marked.', 'success');
             },
             error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Failed!',
-                    text: xhr.responseJSON?.message || '❌ Error marking attendance.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    startScanner(); // Restart scanning
-                });
+                showResult(xhr.responseJSON?.message || '❌ Error marking attendance.', 'danger');
             }
         });
     }
 
-    // Start scanner on page load
-    $(document).ready(function() {
-        startScanner();
+    // Start scanner
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess
+    ).catch(err => {
+        showResult(`Camera error: ${err}`, 'danger');
     });
 </script>
-
 @endsection
