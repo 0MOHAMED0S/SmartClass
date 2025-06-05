@@ -1,12 +1,19 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="container text-center mt-5">
-    <h1 class="mb-4">📷 Scan Student QR Code</h1>
+<div class="container d-flex justify-content-center align-items-center mt-5">
+    <div class="card shadow-lg rounded-4 p-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-4">📷 Scan Student QR Code</h2>
 
-    <div id="reader" style="width: 300px; margin: auto;"></div>
+        <div id="reader" class="border rounded-3" style="width: 100%; height: auto;"></div>
 
-    <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
+        <div id="scan-result" class="mt-4 alert text-center d-none">
+            <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+                <span class="visually-hidden">Scanning...</span>
+            </div>
+            <span class="ms-2">Scanning...</span>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -17,10 +24,10 @@
 
 <script>
     function showResult(message, type = 'info') {
-        $('#scan-result')
-            .removeClass('d-none alert-info alert-success alert-danger')
-            .addClass(`alert-${type}`)
-            .text(message);
+        const resultEl = $('#scan-result');
+        resultEl.removeClass('d-none alert-info alert-success alert-danger')
+                .addClass(`alert alert-${type}`)
+                .html(`<strong>${message}</strong>`);
     }
 
     function onScanSuccess(decodedText, decodedResult) {
@@ -45,14 +52,17 @@
         });
     }
 
-    // Start scanner
     const html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+        },
         onScanSuccess
     ).catch(err => {
-        showResult(`Camera error: ${err}`, 'danger');
+        showResult(`📷 Camera error: ${err}`, 'danger');
     });
 </script>
 @endsection
