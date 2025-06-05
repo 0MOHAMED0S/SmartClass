@@ -180,7 +180,7 @@ public function scan(Request $request)
     // Check if already marked present
     if ($record->status == 1) {
         return response()->json([
-            'message' => "ℹ️ Attendance already marked for student: {$student->name} {$code}"
+            'info' => "ℹ️ Attendance already marked for student: {$student->name} {$code}"
         ], 200);
     }
 

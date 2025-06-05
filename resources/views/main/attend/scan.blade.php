@@ -74,6 +74,18 @@
                     startScanner(); // Restart scanning
                 });
             },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'info!',
+                    text: response.info || 'ℹ️ Already Attendance marked.',
+                    confirmButtonText: 'OK',
+                    timer: 10000,
+                    timerProgressBar: true
+                }).then(() => {
+                    startScanner(); // Restart scanning
+                });
+            },
             error: function(xhr) {
                 Swal.fire({
                     icon: 'error',
