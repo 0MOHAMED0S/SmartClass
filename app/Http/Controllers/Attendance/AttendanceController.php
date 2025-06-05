@@ -185,4 +185,20 @@ class AttendanceController extends Controller
             'message' => "✅ Attendance marked for student code: {$code}"
         ]);
     }
+
+    public function scanindex(Request $request, $roomId, $subjectId, $attendId)
+    {
+        try {
+            $room = Room::findOrFail($roomId);
+            $subject = Subject::findOrFail($subjectId);
+            $attendance = Attendance::findOrFail($attendId);
+
+            return view('main.attend.scan', compact('room', 'subject', 'attendance'))
+                ->with('attend', $attendId); // Pass attend separately if needed
+        } catch (ModelNotFoundException $e) {
+            return redirect()->back()->with('error', '❌ Room, Subject, or Attendance session not found.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', '❌ An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
 }
