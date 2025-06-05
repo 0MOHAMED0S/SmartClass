@@ -3,11 +3,10 @@
 @section('content')
 <div class="container text-center mt-5">
     <h1 class="mb-4">📷 Scan Student QR Code</h1>
-
 <center>
         <div id="reader" style="width: 300px; margin: auto;"></div>
+        <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
 </center>
-    <div id="scan-result" class="mt-4 alert alert-info d-none">Scanning...</div>
 </div>
 @endsection
 
