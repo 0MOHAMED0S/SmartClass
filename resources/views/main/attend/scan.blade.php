@@ -2,15 +2,17 @@
 
 @section('content')
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="card shadow-lg rounded-4 p-5 w-100" style="max-width: 700px;">
-        <h2 class="text-center mb-5 fs-3">📷 Scan Student QR Code</h2>
+    <div class="card shadow-lg rounded-4 p-4 w-100" style="max-width: 100%;">
+        <h2 class="text-center mb-4 fs-3">📷 Scan Student QR Code</h2>
 
-        <!-- QR Scanner -->
-        <div id="reader" class="border rounded-3 mx-auto" style="width: 100%; max-width: 100%; height: auto;"></div>
+        <!-- Responsive QR Scanner Box -->
+        <div class="d-flex justify-content-center">
+            <div id="reader" class="border rounded-3" style="width: 100%; max-width: 100%;"></div>
+        </div>
 
         <!-- Scan Result -->
         <div id="scan-result" class="mt-4 alert d-none text-center fs-5 fw-semibold">
-            <div class="spinner-border text-primary me-2" role="status" style="width: 1.2rem; height: 1.2rem;">
+            <div class="spinner-border text-primary me-2" role="status" style="width: 1rem; height: 1rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>
             <span>Scanning...</span>
@@ -20,7 +22,6 @@
 @endsection
 
 @section('outside')
-<!-- Libraries -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -54,14 +55,14 @@
         });
     }
 
-    // Initialize QR code scanner with a large box
+    // Automatically resize scanner for screen size
+    const screenWidth = window.innerWidth;
+    const qrSize = screenWidth < 500 ? screenWidth * 0.85 : 400;
+
     const html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: { width: 400, height: 400 }, // Bigger scanning box
-        },
+        { fps: 10, qrbox: { width: qrSize, height: qrSize } },
         onScanSuccess
     ).catch(err => {
         showResult(`❌ Camera error: ${err}`, 'danger');
