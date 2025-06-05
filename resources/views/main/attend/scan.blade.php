@@ -74,7 +74,7 @@
                     startScanner(); // Restart scanning
                 });
             },
-            success: function(response) {
+            info: function(response) {
                 Swal.fire({
                     icon: 'info',
                     title: 'info!',
