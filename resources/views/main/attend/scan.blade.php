@@ -27,7 +27,7 @@
         showResult(`✅ Scanned: ${decodedText}`, 'success');
 
         $.ajax({
-            url: "{{ route('subjects.attend.scan') }}",
+            url: `/subjects/{{ $room->id }}/subject/{{ $subject->id }}/attend/scan`,
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
