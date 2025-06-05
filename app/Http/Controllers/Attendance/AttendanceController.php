@@ -152,39 +152,47 @@ class AttendanceController extends Controller
         }
     }
 
-    public function scan(Request $request)
-    {
-        $code = $request->input('qr_code');
-        $roomId = $request->input('room_id');
-        $subjectId = $request->input('subject_id');
-        $attendId = $request->input('attend_id');
+public function scan(Request $request)
+{
+    $code = $request->input('qr_code');
+    $roomId = $request->input('room_id');
+    $subjectId = $request->input('subject_id');
+    $attendId = $request->input('attend_id');
 
-        // Get the student
-        $student = Student::where('code', $code)->first();
+    // Get the student
+    $student = Student::where('code', $code)->first();
 
-        if (!$student) {
-            return response()->json(['message' => '❌ Student not found.'], 404);
-        }
-
-        // Find the attendance record
-        $record = AttendanceRecord::where('attendance_id', $attendId)
-            ->where('room_id', $roomId)
-            ->where('subject_id', $subjectId)
-            ->where('student_id', $student->id)
-            ->first();
-
-        if (!$record) {
-            return response()->json(['message' => '❌ No matching attendance record found.'], 404);
-        }
-
-        // Update the status to 1 (present)
-        $record->status = 1;
-        $record->save();
-
-        return response()->json([
-            'message' => "✅ Attendance marked for student code: {$code}"
-        ]);
+    if (!$student) {
+        return response()->json(['message' => '❌ Student not found.'], 404);
     }
+
+    // Find the attendance record
+    $record = AttendanceRecord::where('attendance_id', $attendId)
+        ->where('room_id', $roomId)
+        ->where('subject_id', $subjectId)
+        ->where('student_id', $student->id)
+        ->first();
+
+    if (!$record) {
+        return response()->json(['message' => '❌ No matching attendance record found.'], 404);
+    }
+
+    // Check if already marked present
+    if ($record->status == 1) {
+        return response()->json([
+            'message' => "ℹ️ Attendance already marked for student code:{$student->name} {$code}"
+        ], 200);
+    }
+
+    // Mark as present
+    $record->status = 1;
+    $record->save();
+
+    return response()->json([
+        'message' => "✅ Attendance marked for student code: {$student->name} {$code}"
+    ]);
+}
+
 
     public function scanindex(Request $request, $roomId, $subjectId, $attendId)
     {
