@@ -158,6 +158,7 @@ class AttendanceController extends Controller
 
     public function scan(Request $request, $roomId, $subjectId, $attendId)
     {
+        dd('llk');die();
         try {
             $student = Student::where('qr_code', $request->qr_code)->first();
 
