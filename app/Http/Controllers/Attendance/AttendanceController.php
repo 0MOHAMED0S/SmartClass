@@ -162,7 +162,6 @@ class AttendanceController extends Controller
         $roomId = $request->input('room_id');
         $subjectId = $request->input('subject_id');
         $attendId = $request->input('attend_id');
-
         // Get the student
         $student = Student::where('code', $code)->first();
 
@@ -204,12 +203,12 @@ class AttendanceController extends Controller
         $room = Room::findOrFail($roomId);
         $subject = Subject::findOrFail($subjectId);
         $attendance = Attendance::findOrFail($attendId);
-
+        $attend=$attendId;
         $sections = $request->input('sections', []);
 
         // dd($sections);
 
-        return view('main.attend.scan', compact('room', 'subject', 'attendance', 'sections'));
+        return view('main.attend.scan', compact('room', 'subject', 'attendance','attend', 'sections'));
 
     } catch (ModelNotFoundException $e) {
         return redirect()->back()->with('error', '❌ Room, Subject, or Attendance session not found.');
