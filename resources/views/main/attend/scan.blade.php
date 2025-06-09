@@ -17,97 +17,86 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-    const allowedSections = @json($sections);
-    let html5QrCode;
-    let scannerRunning = false;
-    let processingScan = false;
+        let html5QrCode;
+        let scannerRunning = false;
 
-    function showResult(message, type = 'info') {
-        $('#scan-result')
-            .removeClass('d-none alert-info alert-success alert-danger')
-            .addClass(`alert-${type}`)
-            .text(message);
-    }
-
-    function stopScanner() {
-        if (html5QrCode && scannerRunning) {
-            html5QrCode.stop().then(() => {
-                scannerRunning = false;
-            }).catch(err => {
-                console.error("Failed to stop scanner", err);
-            });
-        }
-    }
-
-    function startScanner() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showResult('Camera not supported in this browser.', 'danger');
-            return;
+        function showResult(message, type = 'info') {
+            $('#scan-result')
+                .removeClass('d-none alert-info alert-success alert-danger')
+                .addClass(`alert-${type}`)
+                .text(message);
         }
 
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            },
-            onScanSuccess
-        ).then(() => {
-            scannerRunning = true;
-        }).catch(err => {
-            showResult(`Camera error: ${err}`, 'danger');
-        });
-    }
-
-    function onScanSuccess(decodedText, decodedResult) {
-        if (processingScan) return;
-        processingScan = true;
-        stopScanner();
-
-        document.getElementById('beep-sound').play();
-
-        $.ajax({
-            url: "{{ route('subjects.attend.scan', [$room->id, $subject->id, $attend]) }}",
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                qr_code: decodedText,
-                room_id: {{ $room->id }},
-                subject_id: {{ $subject->id }},
-                attend_id: {{ $attendance->id }},
-                sections: allowedSections,
-            },
-            success: function(response) {
-                processingScan = false;
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Successful!',
-                    text: response.message || '✅ Attendance marked.',
-                    confirmButtonText: 'OK',
-                    timer: 10000,
-                    timerProgressBar: true
-                }).then(() => {
-                    startScanner();
-                });
-            },
-            error: function(xhr) {
-                processingScan = false;
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Failed!',
-                    text: xhr.responseJSON?.message || '❌ Error marking attendance.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    startScanner();
+        function stopScanner() {
+            if (html5QrCode && scannerRunning) {
+                html5QrCode.stop().then(() => {
+                    scannerRunning = false;
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
                 });
             }
+        }
+
+        function startScanner() {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({
+                    facingMode: "environment"
+                }, {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    }
+                },
+                onScanSuccess
+            ).then(() => {
+                scannerRunning = true;
+            }).catch(err => {
+                showResult(`Camera error: ${err}`, 'danger');
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            stopScanner(); // Stop scanning
+            document.getElementById('beep-sound').play();
+            $.ajax({
+                url: "{{ route('subjects.attend.scan', [$room->id, $subject->id, $attend]) }}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    qr_code: decodedText,
+                    room_id: {{ $room->id }},
+                    subject_id: {{ $subject->id }},
+                    attend_id: {{ $attendance->id }},
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Successful!',
+                        text: response.message || '✅ Attendance marked.',
+                        confirmButtonText: 'OK',
+                        timer: 10000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        startScanner(); // Restart scanning
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: xhr.responseJSON?.message || '❌ Error marking attendance.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        startScanner(); // Restart scanning
+                    });
+                }
+            });
+        }
+
+        // Start scanner on page load
+        $(document).ready(function() {
+            startScanner();
         });
-    }
-
-    $(document).ready(function() {
-        startScanner();
-    });
-</script>
-
+    </script>
 @endsection
