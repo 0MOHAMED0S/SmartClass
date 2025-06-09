@@ -156,48 +156,54 @@ class AttendanceController extends Controller
         }
     }
 
-    public function scan(Request $request)
-    {
-        $code = $request->input('qr_code');
-        $roomId = $request->input('room_id');
-        $subjectId = $request->input('subject_id');
-        $attendId = $request->input('attend_id');
-        // Get the student
-        $student = Student::where('code', $code)->first();
+public function scan(Request $request)
+{
+    $code = $request->input('qr_code');
+    $roomId = $request->input('room_id');
+    $subjectId = $request->input('subject_id');
+    $attendId = $request->input('attend_id');
+    $allowedSections = $request->input('sections', []);
 
-        if (!$student) {
-            return response()->json(['message' => '❌ Student not found.'], 404);
-        }
+    // Get the student
+    $student = Student::where('code', $code)->first();
 
-        // Find the attendance record
-        $record = AttendanceRecord::where('attendance_id', $attendId)
-            ->where('room_id', $roomId)
-            ->where('subject_id', $subjectId)
-            ->where('student_id', $student->id)
-            ->first();
-
-        if (!$record) {
-            return response()->json(['message' => '❌ No matching attendance record found.'], 404);
-        }
-
-        // Check if already marked present
-        if ($record->status == 1) {
-            return response()->json([
-                'message' => "ℹ️ Attendance already marked for student: {$student->name} {$code}"
-            ], 200);
-        }
-
-        // Mark as present
-        $record->status = 1;
-        $record->save();
-
-        return response()->json([
-            'message' => "✅ Attendance marked for student: {$student->name} {$code}"
-        ]);
+    if (!$student) {
+        return response()->json(['message' => '❌ Student not found.'], 404);
     }
 
+    // Check if student is in allowed section(s)
+    if (!in_array($student->section_id, $allowedSections)) {
+        return response()->json(['message' => '🚫 Student not in selected section(s).'], 403);
+    }
 
-   public function scanIndex(Request $request, $roomId, $subjectId, $attendId)
+    // Find the attendance record
+    $record = AttendanceRecord::where('attendance_id', $attendId)
+        ->where('room_id', $roomId)
+        ->where('subject_id', $subjectId)
+        ->where('student_id', $student->id)
+        ->first();
+
+    if (!$record) {
+        return response()->json(['message' => '❌ No matching attendance record found.'], 404);
+    }
+
+    if ($record->status == 1) {
+        return response()->json([
+            'message' => "ℹ️ Attendance already marked for student: {$student->name} {$code}"
+        ], 200);
+    }
+
+    $record->status = 1;
+    $record->save();
+
+    return response()->json([
+        'message' => "✅ Attendance marked for student: {$student->name} {$code}"
+    ]);
+}
+
+
+
+    public function scanIndex(Request $request, $roomId, $subjectId, $attendId)
 {
     try {
         $room = Room::findOrFail($roomId);
@@ -205,9 +211,6 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($attendId);
         $attend=$attendId;
         $sections = $request->input('sections', []);
-
-        // dd($sections);
-
         return view('main.attend.scan', compact('room', 'subject', 'attendance','attend', 'sections'));
 
     } catch (ModelNotFoundException $e) {

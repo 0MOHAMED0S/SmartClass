@@ -12,6 +12,10 @@
 @endsection
 
 @section('outside')
+<script>
+    const allowedSections = @json($sections);
+</script>
+
     <!-- QR Code Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -68,6 +72,7 @@
                     room_id: {{ $room->id }},
                     subject_id: {{ $subject->id }},
                     attend_id: {{ $attendance->id }},
+                    sections: allowedSections,
                 },
                 success: function(response) {
                     Swal.fire({
