@@ -19,14 +19,36 @@
     <h1>
         <strong>{{ $room->name }}</strong><br> <span style="color: rgba(78, 78, 78, 0.986)"> {{ $subject->name }}</span>
     </h1>
-    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-        <a href="{{ route('attend.scan.index', ['room' => $room->id, 'subject' => $subject->id, 'attend' => $attendance->id]) }}"
-            class="btn btn-warning d-flex align-items-center gap-2 shadow px-4 py-2 rounded-pill">
-            <i class="fas fa-plus-circle fa-lg"></i>
-            <span>Scan</span>
-        </a>
-        <br>
+<div class="d-flex justify-content-center mt-4">
+<form method="POST"
+    action="{{ route('attend.scan.index', ['room' => $room->id, 'subject' => $subject->id, 'attend' => $attendance->id]) }}"
+    class="d-flex flex-column align-items-center gap-3 mt-4 flex-wrap">
+    @csrf
+
+    <div class="d-flex flex-wrap gap-3">
+        <label class="form-check-label">
+            <input type="checkbox" name="sections[]" value="" checked class="form-check-input">
+            All Sections
+        </label>
+
+        @foreach($room->students->pluck('section')->unique() as $section)
+            <label class="form-check-label">
+                <input type="checkbox" name="sections[]" value="{{ $section }}" class="form-check-input">
+                Section {{ $section }}
+            </label>
+        @endforeach
     </div>
+
+    <button type="submit" class="btn btn-warning d-flex align-items-center gap-2 shadow px-4 py-2 rounded-pill">
+        <i class="fas fa-plus-circle fa-lg"></i>
+        <span>Scan</span>
+    </button>
+</form>
+
+
+
+</div>
+
     <div class="text-center mt-5">
         <h5 class="text-warning mb-4"><i class="fas fa-calendar-alt me-2"></i>Attendances</h5>
         <div style="max-height: 300px; overflow-y: auto;" class="px-2">
@@ -49,7 +71,7 @@
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div id="card" class="card">
                     <div class="card-body">
                         <h5 class="card-title">Students Attendance</h5>
                         <div class="table-responsive">
@@ -71,13 +93,32 @@
         </div>
     </div>
 @endsection
-
 @section('scripts')
     <!-- Include DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{{-- JavaScript to toggle 'All Sections' --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const allCheckbox = document.querySelector('input[name="sections[]"][value=""]');
+        const otherCheckboxes = document.querySelectorAll('input[name="sections[]"]:not([value=""])');
 
+        allCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                otherCheckboxes.forEach(cb => cb.checked = false);
+            }
+        });
+
+        otherCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                if (this.checked) {
+                    allCheckbox.checked = false;
+                }
+            });
+        });
+    });
+</script>
     <script>
         $(document).ready(function() {
             $('#students_table').DataTable({

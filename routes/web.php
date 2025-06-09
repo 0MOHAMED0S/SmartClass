@@ -82,9 +82,11 @@ Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}',[AttendanceControl
 //get subject attend
 Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/students',[AttendanceController::class, 'attendStudents'])->middleware('doctor.subject')->name('subjects.attend.students');//done
 //scan
-Route::get('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->middleware('doctor.subject')->name('attend.scan.index');//done
+Route::post('/rooms/{room}/subjects/{subject}/attend/{attend}/scan',[AttendanceController::class, 'scanindex'])->middleware('doctor.subject')->name('attend.scan.index');//done
 
 Route::post('/subjects/{room}/subject/{subject}/attend/scan', [AttendanceController::class, 'scan'])->middleware('doctor.subject')->name('subjects.attend.scan');
+//export
+Route::get('/subjects/{room}/subject/{subject}/attendance/export', [AttendanceController::class, 'exportExcel'])->middleware('doctor.subject')->name('attendance.export');
 
 });
 

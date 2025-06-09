@@ -17,6 +17,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        const allowedSections = @json($sections);
         let html5QrCode;
         let scannerRunning = false;
 
@@ -68,6 +69,7 @@
                     room_id: {{ $room->id }},
                     subject_id: {{ $subject->id }},
                     attend_id: {{ $attendance->id }},
+                    sections: allowedSections,
                 },
                 success: function(response) {
                     Swal.fire({

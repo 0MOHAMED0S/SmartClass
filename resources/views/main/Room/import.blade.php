@@ -51,7 +51,7 @@
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div id="card" class="card">
                     <div class="card-body">
                         <h5 class="card-title">Students Attendance</h5>
                         <div class="table-responsive">

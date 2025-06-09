@@ -103,11 +103,33 @@
     </div>
 @endsection
 @section('outside')
+<div class="card d-flex justify-content-center align-items-center" style="height: 150px;">
+  <form method="GET" action="{{ route('attendance.export',['room' => $room->id, 'subject' => $subject->id]) }}" class="d-flex gap-2 flex-wrap align-items-center justify-content-center">
+    <select name="month" class="form-select w-auto">
+      <option value="">All Months</option>
+      @foreach(range(1, 12) as $m)
+        <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+      @endforeach
+    </select>
+
+    <select name="section" class="form-select w-auto">
+      <option value="">All Sections</option>
+      @foreach($room->students->pluck('section')->unique() as $section)
+        <option value="{{ $section }}">{{ $section }}</option>
+      @endforeach
+    </select>
+
+    <button type="submit" class="btn btn-success">
+      <i class="fas fa-file-excel"></i> Export Excel
+    </button>
+  </form>
+</div>
+
     {{-- Students Table --}}
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div id="card" class="card">
                     <div class="card-body">
                         <h5 class="card-title">Students Attendance</h5>
                         <div class="table-responsive">

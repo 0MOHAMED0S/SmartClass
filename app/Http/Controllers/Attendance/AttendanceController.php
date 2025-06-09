@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Attendance\AttendanceExportRequest;
 use App\Models\Attendance;
 use App\Models\AttendanceRecord;
 use App\Models\Student;
@@ -13,6 +14,9 @@ use App\Models\Subject;
 use Yajra\DataTables\Facades\DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Exports\AttendanceExport;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
@@ -152,61 +156,102 @@ class AttendanceController extends Controller
         }
     }
 
-public function scan(Request $request)
-{
-    $code = $request->input('qr_code');
-    $roomId = $request->input('room_id');
-    $subjectId = $request->input('subject_id');
-    $attendId = $request->input('attend_id');
+    public function scan(Request $request, $roomId, $subjectId, $attendId)
+    {
+        try {
+            $student = Student::where('qr_code', $request->qr_code)->first();
 
-    // Get the student
-    $student = Student::where('code', $code)->first();
+            if (!$student) {
+                return response()->json(['message' => 'Student not found.'], 404);
+            }
 
-    if (!$student) {
-        return response()->json(['message' => '❌ Student not found.'], 404);
+            // ✅ Validate section if specific sections were selected
+            $allowedSections = $request->input('sections', []);
+
+            // If empty string is present, treat it as "All Sections"
+            if (!(in_array("", $allowedSections) || in_array(null, $allowedSections))) {
+                if (!in_array($student->section, $allowedSections)) {
+                    return response()->json(['message' => '❌ You are not allowed to scan this section.'], 403);
+                }
+            }
+
+            // Find or create attendance record
+            $record = AttendanceRecord::firstOrCreate([
+                'student_id' => $student->id,
+                'room_id' => $roomId,
+                'subject_id' => $subjectId,
+                'attendance_id' => $attendId,
+            ]);
+
+            $record->status = 1;
+            $record->save();
+
+            return response()->json(['message' => '✅ Attendance marked successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => '❌ Server error.', 'details' => $e->getMessage()], 500);
+        }
     }
 
-    // Find the attendance record
-    $record = AttendanceRecord::where('attendance_id', $attendId)
-        ->where('room_id', $roomId)
-        ->where('subject_id', $subjectId)
-        ->where('student_id', $student->id)
-        ->first();
-
-    if (!$record) {
-        return response()->json(['message' => '❌ No matching attendance record found.'], 404);
-    }
-
-    // Check if already marked present
-    if ($record->status == 1) {
-        return response()->json([
-            'message' => "ℹ️ Attendance already marked for student: {$student->name} {$code}"
-        ], 200);
-    }
-
-    // Mark as present
-    $record->status = 1;
-    $record->save();
-
-    return response()->json([
-        'message' => "✅ Attendance marked for student: {$student->name} {$code}"
-    ]);
-}
-
-
-    public function scanindex(Request $request, $roomId, $subjectId, $attendId)
+    public function scanIndex(Request $request, $roomId, $subjectId, $attendId)
     {
         try {
             $room = Room::findOrFail($roomId);
             $subject = Subject::findOrFail($subjectId);
             $attendance = Attendance::findOrFail($attendId);
 
-            return view('main.attend.scan', compact('room', 'subject', 'attendance'))
-                ->with('attend', $attendId); // Pass attend separately if needed
+            $sections = $request->input('sections', []);
+
+            // dd($sections);
+
+            return view('main.attend.scan', compact('room', 'subject', 'attendance', 'sections'));
         } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('error', '❌ Room, Subject, or Attendance session not found.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', '❌ An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function exportExcel(AttendanceExportRequest $request, $roomId, $subjectId)
+    {
+        try {
+            // Check if room exists
+            $room = Room::findOrFail($roomId);
+            // Check if subject exists and belongs to the room
+            $subject = Subject::where('id', $subjectId)
+                ->where('room_id', $roomId)
+                ->firstOrFail();
+
+            // Get filter values
+            $month = $request->input('month'); // single value
+            $section = $request->input('section'); // array
+
+            // Check if there are attendances in this month
+            if ($month != null) {
+                $hasAttendance = Attendance::where('room_id', $roomId)
+                    ->where('subject_id', $subjectId)
+                    ->whereMonth('created_at', $month)
+                    ->exists();
+
+                if (!$hasAttendance) {
+                    return back()->withErrors([
+                        'export' => 'No attendance records found for the selected month.'
+                    ]);
+                }
+            }
+            // Proceed with export
+            return Excel::download(
+                new AttendanceExport($room->id, $subject->id, $month, $section),
+                'Filtered_Attendance.xlsx'
+            );
+        } catch (ModelNotFoundException $e) {
+            return back()->withErrors([
+                'export' => 'Room or Subject not found or mismatched.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Excel export failed: ' . $e->getMessage());
+            return back()->withErrors([
+                'export' => 'An unexpected error occurred during export. Please try again.'
+            ]);
         }
     }
 }

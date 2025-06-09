@@ -49,6 +49,6 @@
          *       Basic Table                   *
          ****************************************/
         $("#zero_config").DataTable();
-      </script>
+    </script>
 </body>
 </html>
