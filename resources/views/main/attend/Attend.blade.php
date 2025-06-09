@@ -28,13 +28,13 @@
     <div class="d-flex flex-wrap gap-3">
         <label class="form-check-label">
             <input type="checkbox" name="sections[]" value="" checked class="form-check-input">
-            All Sections
+            All Sec
         </label>
 
         @foreach($room->students->pluck('section')->unique() as $section)
             <label class="form-check-label">
                 <input type="checkbox" name="sections[]" value="{{ $section }}" class="form-check-input">
-                Section {{ $section }}
+                Sec {{ $section }}
             </label>
         @endforeach
     </div>
