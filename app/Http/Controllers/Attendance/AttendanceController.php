@@ -172,7 +172,7 @@ public function scan(Request $request)
     }
 
     // Check if student is in allowed section(s)
-    if (!in_array($student->section_id, $allowedSections)) {
+    if (!in_array($student->section, $allowedSections)) {
         return response()->json(['message' => '🚫 Student not in selected section(s).'], 403);
     }
 
