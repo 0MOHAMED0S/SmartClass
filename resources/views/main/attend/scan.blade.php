@@ -87,7 +87,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Failed!',
-                        text: xhr.responseJSON?.message || '❌ Error marking attendance.',
+                        text: xhr.responseJSON?.message ,
                         confirmButtonText: 'OK'
                     }).then(() => {
                         startScanner(); // Restart scanning
