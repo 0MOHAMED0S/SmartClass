@@ -156,42 +156,48 @@ class AttendanceController extends Controller
         }
     }
 
-    public function scan(Request $request, $roomId, $subjectId, $attendId)
-    {
-        dd('llk');die();
-        try {
-            $student = Student::where('qr_code', $request->qr_code)->first();
+public function scan(Request $request, $roomId, $subjectId, $attendId)
+{
+    try {
+        $student = Student::where('qr_code', $request->qr_code)->first();
 
-            if (!$student) {
-                return response()->json(['message' => 'Student not found.'], 404);
-            }
-
-            // ✅ Validate section if specific sections were selected
-            $allowedSections = $request->input('sections', []);
-
-            // If empty string is present, treat it as "All Sections"
-            if (!(in_array("", $allowedSections) || in_array(null, $allowedSections))) {
-                if (!in_array($student->section, $allowedSections)) {
-                    return response()->json(['message' => '❌ You are not allowed to scan this section.'], 403);
-                }
-            }
-
-            // Find or create attendance record
-            $record = AttendanceRecord::firstOrCreate([
-                'student_id' => $student->id,
-                'room_id' => $roomId,
-                'subject_id' => $subjectId,
-                'attendance_id' => $attendId,
-            ]);
-
-            $record->status = 1;
-            $record->save();
-
-            return response()->json(['message' => '✅ Attendance marked successfully.']);
-        } catch (\Exception $e) {
-            return response()->json(['message' => '❌ Server error.', 'details' => $e->getMessage()], 500);
+        if (!$student) {
+            return response()->json(['message' => 'Student not found.'], 404);
         }
+
+        // ✅ Validate section if specific sections were selected
+        $allowedSections = $request->input('sections', []);
+
+        if (!empty($allowedSections) && !in_array("", $allowedSections) && !in_array(null, $allowedSections)) {
+            if (!in_array($student->section, $allowedSections)) {
+                return response()->json(['message' => '❌ You are not allowed to scan this section.'], 403);
+            }
+        }
+
+        // ✅ Check and update attendance record
+        $record = AttendanceRecord::firstOrCreate([
+            'student_id' => $student->id,
+            'room_id' => $roomId,
+            'subject_id' => $subjectId,
+            'attendance_id' => $attendId,
+        ]);
+
+        if ($record->status === 1) {
+            return response()->json(['message' => '✅ Already marked present.']);
+        }
+
+        $record->status = 1;
+        $record->save();
+
+        return response()->json(['message' => '✅ Attendance marked successfully.']);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => '❌ Server error.',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function scanIndex(Request $request, $roomId, $subjectId, $attendId)
     {
